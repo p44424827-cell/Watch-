@@ -1,0 +1,6 @@
+{
+  "name": "WatchX",
+  "description": "A professional multi-view browser with integrated ad placements and configurable view counts (6, 10, 15, 21).",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-[#fce4ec] text-slate-900 overflow-hidden;
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-150%) skewX(-45deg); }
+  50% { transform: translateX(150%) skewX(-45deg); }
+  100% { transform: translateX(150%) skewX(-45deg); }
+}
+
+.view-btn {
+  @apply bg-[#4d73ff] text-white font-bold py-4 rounded-lg shadow-md hover:bg-[#3d63ef] transition-colors text-xl uppercase;
+}
+
+.action-btn-black {
+  @apply bg-black text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors text-lg;
+}
+
+.action-btn-yellow {
+  @apply bg-[#fcc02e] text-black font-bold py-3 px-8 rounded-lg shadow-md transition-colors text-lg;
+}
+
+.input-field {
+  @apply w-full bg-white border-4 border-[#4d73ff] rounded-xl py-4 px-6 text-xl italic text-slate-500 shadow-sm focus:outline-none;
+}
