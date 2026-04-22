@@ -1,6 +1,6 @@
 {
   "name": "WatchX",
-  "description": "A professional multi-view browser with integrated ad placements and configurable view counts (6, 10, 15, 21).",
+  "description": "YouTube video watch time and views ",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }
