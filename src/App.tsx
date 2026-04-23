@@ -49,6 +49,39 @@ const getEmbedUrl = (url: string) => {
   return url;
 };
 
+const NativeScriptAd = ({ adKey }: { adKey: string }) => {
+  const adRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (adRef.current && adKey) {
+      // Clear previous content
+      adRef.current.innerHTML = '';
+      
+      const container = document.createElement('div');
+      container.id = `container-${adKey}`;
+      
+      const script1 = document.createElement('script');
+      script1.innerHTML = `
+        atOptions = {
+          'key' : '${adKey}',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      `;
+      
+      const script2 = document.createElement('script');
+      script2.src = `https://accedelid.com/${adKey}/invoke.js`;
+      
+      adRef.current.appendChild(script1);
+      adRef.current.appendChild(script2);
+    }
+  }, [adKey]);
+
+  return <div ref={adRef} className="flex justify-center my-2 overflow-hidden min-h-[50px] w-full max-w-[320px] mx-auto bg-slate-100/30 rounded" />;
+};
+
 export default function App() {
   const [url, setUrl] = useState('');
   const [activeUrl, setActiveUrl] = useState('');
@@ -72,7 +105,8 @@ export default function App() {
       allowUnlimitedViews: false,
       appLanguage: 'English',
       adSenseClientId: 'ca-pub-XXXXXXXXXXXX',
-      adUnitId: '1234567890'
+      adUnitId: '1234567890',
+      nativeAdKey: '0b42251643af50b81e65d8b30b80ae4c'
     };
   });
 
@@ -402,6 +436,23 @@ export default function App() {
                              * Enter your real AdSense credentials to replace simulated ads with revenue-generating units.
                           </div>
                         </div>
+
+                        {/* Setting Card: Script Ad Key */}
+                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                              <Zap className="w-5 h-5 text-purple-600" />
+                            </div>
+                            <span className="font-black text-slate-800 text-sm uppercase italic">Native Script Ad Key</span>
+                          </div>
+                          <input 
+                            type="text" 
+                            placeholder="Ad Key (e.g. 0b4225...)" 
+                            value={appSettings.nativeAdKey}
+                            onChange={(e) => setAppSettings(prev => ({...prev, nativeAdKey: e.target.value}))}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:border-indigo-500"
+                          />
+                        </div>
                       </div>
 
                       {/* User Data Table Section */}
@@ -490,6 +541,11 @@ export default function App() {
                     </span>
                   </div>
                 </div>
+              )}
+
+              {/* Native Script Ad Integration */}
+              {appSettings.nativeAdKey && (
+                <NativeScriptAd adKey={appSettings.nativeAdKey} />
               )}
 
               {/* Red Logo Banner TRANSFORMED into AD INTEGRATION */}
