@@ -54,15 +54,12 @@ const NativeScriptAd = ({ adKey }: { adKey: string }) => {
 
   useEffect(() => {
     if (adRef.current && adKey) {
-      // Clear previous content
       adRef.current.innerHTML = '';
       
-      const container = document.createElement('div');
-      container.id = `container-${adKey}`;
-      
       const script1 = document.createElement('script');
+      script1.type = 'text/javascript';
       script1.innerHTML = `
-        atOptions = {
+        window.atOptions = {
           'key' : '${adKey}',
           'format' : 'iframe',
           'height' : 50,
@@ -72,14 +69,15 @@ const NativeScriptAd = ({ adKey }: { adKey: string }) => {
       `;
       
       const script2 = document.createElement('script');
-      script2.src = `https://accedelid.com/${adKey}/invoke.js`;
+      script2.type = 'text/javascript';
+      script2.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
       
       adRef.current.appendChild(script1);
       adRef.current.appendChild(script2);
     }
   }, [adKey]);
 
-  return <div ref={adRef} className="flex justify-center my-2 overflow-hidden min-h-[50px] w-full max-w-[320px] mx-auto bg-slate-100/30 rounded" />;
+  return <div ref={adRef} className="flex justify-center my-3 overflow-hidden min-h-[50px] w-full max-w-[320px] mx-auto bg-slate-100/10 rounded-xl" />;
 };
 
 export default function App() {
@@ -97,8 +95,7 @@ export default function App() {
   const [adminPin, setAdminPin] = useState('');
   const [secretCounter, setSecretCounter] = useState(0);
   const [appSettings, setAppSettings] = useState(() => {
-    const saved = localStorage.getItem('browserProSettings');
-    return saved ? JSON.parse(saved) : {
+    const defaults = {
       adTimerDuration: 5,
       showAnnouncementBar: true,
       showHomeBannerAd: true,
@@ -108,6 +105,16 @@ export default function App() {
       adUnitId: '1234567890',
       nativeAdKey: '0b42251643af50b81e65d8b30b80ae4c'
     };
+    const saved = localStorage.getItem('timebiSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return { ...defaults, ...parsed };
+      } catch (e) {
+        return defaults;
+      }
+    }
+    return defaults;
   });
 
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
@@ -118,7 +125,7 @@ export default function App() {
 
   const handleSaveSettings = () => {
     setSaveStatus('saving');
-    localStorage.setItem('browserProSettings', JSON.stringify(appSettings));
+    localStorage.setItem('timebiSettings', JSON.stringify(appSettings));
     setTimeout(() => {
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus('idle'), 2000);
@@ -325,7 +332,7 @@ export default function App() {
                     <div className="max-w-4xl mx-auto space-y-8">
                       <header>
                         <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tight">Application Settings</h2>
-                        <p className="text-slate-500 font-medium italic">Configure global parameters for WatchX</p>
+                        <p className="text-slate-500 font-medium italic">Configure global parameters for timebi</p>
                       </header>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -531,12 +538,12 @@ export default function App() {
                   <div className="flex animate-[marquee_15s_linear_infinite] gap-12 items-center">
                     <span className="text-sm font-black text-indigo-700 uppercase tracking-widest flex items-center gap-2 shrink-0">
                       <Star className="w-4 h-4 fill-indigo-600 stroke-indigo-600" />
-                      Multi Watchtime And Views WatchX - Boost your reach now!
+                      Multi Watchtime And Views timebi - Boost your reach now!
                       <Star className="w-4 h-4 fill-indigo-600 stroke-indigo-600" />
                     </span>
                     <span className="text-sm font-black text-indigo-700 uppercase tracking-widest flex items-center gap-2 shrink-0">
                       <Star className="w-4 h-4 fill-indigo-600 stroke-indigo-600" />
-                      Multi Watchtime And Views WatchX - Boost your reach now!
+                      Multi Watchtime And Views timebi - Boost your reach now!
                       <Star className="w-4 h-4 fill-indigo-600 stroke-indigo-600" />
                     </span>
                   </div>
@@ -585,7 +592,7 @@ export default function App() {
                   <div className="w-3/5 bg-red-600 flex flex-col items-center justify-center p-3 relative">
                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <h1 className="text-white text-2xl font-black text-center leading-tight uppercase italic tracking-tighter relative z-10 drop-shadow-lg">
-                      Multi<br />Watchtime And Views<br />WatchX
+                      Multi<br />Watchtime And Views<br />timebi
                     </h1>
                     <div className="mt-2 bg-yellow-400 text-black text-[9px] font-black px-3 py-1 rounded-full shadow-md transform group-hover:scale-110 transition-transform relative z-10 uppercase italic">
                       Boost Views Now ✓
