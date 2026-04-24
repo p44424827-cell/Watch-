@@ -49,33 +49,66 @@ const getEmbedUrl = (url: string) => {
   return url;
 };
 
-const NativeScriptAd = ({ adKey }: { adKey: string }) => {
+const ExternalScriptAd = ({ src }: { src: string }) => {
+  useEffect(() => {
+    if (src) {
+      const script = document.createElement('script');
+      script.src = src;
+      script.type = 'text/javascript';
+      script.async = true;
+      document.body.appendChild(script);
+      return () => {
+        try {
+          document.body.removeChild(script);
+        } catch (e) {
+          // Script might have been removed already
+        }
+      };
+    }
+  }, [src]);
+  return null;
+};
+
+const NativeScriptAd = ({ adKey, containerId }: { adKey: string; containerId?: string }) => {
   const adRef = React.useRef<HTMLDivElement>(null);
+  const finalContainerId = containerId || `container-${adKey}`;
 
   useEffect(() => {
     if (adRef.current && adKey) {
       adRef.current.innerHTML = '';
       
+      const container = document.createElement('div');
+      container.id = finalContainerId;
+      adRef.current.appendChild(container);
+      
       const script1 = document.createElement('script');
       script1.type = 'text/javascript';
-      script1.innerHTML = `
-        window.atOptions = {
-          'key' : '${adKey}',
-          'format' : 'iframe',
-          'height' : 50,
-          'width' : 320,
-          'params' : {}
-        };
-      `;
       
-      const script2 = document.createElement('script');
-      script2.type = 'text/javascript';
-      script2.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
+      // If it's the specific view page ad, use the provided structure
+      if (adKey === '39fdd7c314249679983ffaedafd3ded9') {
+        script1.src = `https://accedelid.com/${adKey}/invoke.js`;
+        script1.async = true;
+        (script1 as any).setAttribute('data-cfasync', 'false');
+      } else {
+        script1.innerHTML = `
+          window.atOptions = {
+            'key' : '${adKey}',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        `;
+        
+        const script2 = document.createElement('script');
+        script2.type = 'text/javascript';
+        script2.src = `https://accedelid.com/${adKey}/invoke.js`;
+        adRef.current.appendChild(script2);
+      }
       
       adRef.current.appendChild(script1);
-      adRef.current.appendChild(script2);
     }
-  }, [adKey]);
+  }, [adKey, finalContainerId]);
 
   return <div ref={adRef} className="flex justify-center my-3 overflow-hidden min-h-[50px] w-full max-w-[320px] mx-auto bg-slate-100/10 rounded-xl" />;
 };
@@ -145,7 +178,7 @@ export default function App() {
   const handleStart = () => {
     if (!url) return;
     setShowLoadingAd(true);
-    setAdTimer(appSettings.adTimerDuration);
+    setAdTimer(5); // Keep a short timer to ensure the ad is visible/loaded
   };
 
   const handleAdminLogin = (e: React.FormEvent) => {
@@ -233,6 +266,9 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#fce4ec] overflow-hidden font-sans">
+      {/* Social Bar / Pop-under Ad Integration (Global) */}
+      <ExternalScriptAd src="https://accedelid.com/2d/ce/f9/2dcef9efc0d50c48f5b65405f260f310.js" />
+
       <main className="flex-1 overflow-y-auto relative">
         <AnimatePresence mode="wait">
           {currentView === 'admin' ? (
@@ -550,10 +586,10 @@ export default function App() {
                 </div>
               )}
 
-              {/* Native Script Ad Integration */}
-              {appSettings.nativeAdKey && (
-                <NativeScriptAd adKey={appSettings.nativeAdKey} />
-              )}
+      {/* Native Script Ad Integration */}
+      {appSettings.nativeAdKey && (
+        <NativeScriptAd adKey={appSettings.nativeAdKey} />
+      )}
 
               {/* Red Logo Banner TRANSFORMED into AD INTEGRATION */}
               {appSettings.showHomeBannerAd && (
@@ -666,36 +702,9 @@ export default function App() {
                  </div>
               </div>
 
-              {/* Ad Banner on Top matching image 2 */}
-              <div className="w-full px-2 py-3 flex justify-center sticky top-0 z-10 bg-[#fce4ec]">
-                 <div className="w-full max-w-2xl h-28 bg-[#0a0a0a] rounded overflow-hidden relative shadow-xl border border-white/10">
-                    <div className="absolute inset-0 flex items-center px-4">
-                       <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-red-500 rounded flex items-center justify-center shrink-0">
-                          <Search className="w-10 h-10 text-white" />
-                       </div>
-                       <div className="ml-4 flex-1">
-                          <div className="text-yellow-400 font-bold text-xs uppercase tracking-wider">Welcome Offer: Get ₹500</div>
-                          <div className="flex items-center gap-2 mt-1">
-                             <div className="w-6 h-6 bg-orange-600 rounded flex items-center justify-center">
-                                <Play className="w-3 h-3 fill-white stroke-none" />
-                             </div>
-                             <div className="text-white font-black text-sm uppercase">Delta. Exchange | INDIA</div>
-                          </div>
-                          <div className="flex items-center gap-4 mt-2">
-                             <div className="flex items-center gap-1 text-[8px] text-green-400 font-bold bg-green-900/40 px-1.5 py-0.5 rounded border border-green-500/30">✓ KYC Completed</div>
-                             <div className="flex items-center gap-1 text-[8px] text-green-400 font-bold bg-green-900/40 px-1.5 py-0.5 rounded border border-green-500/30">✓ Pay ₹1000 Fees*</div>
-                          </div>
-                       </div>
-                       <button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded text-[10px] font-black uppercase tracking-tighter">Start Trading Now</button>
-                    </div>
-                    <div className="absolute top-1 right-1 flex gap-1">
-                       <div className="bg-[#4194c5] text-white text-[7px] px-1 rounded-sm flex items-center gap-0.5 font-bold">
-                          <Play className="w-2 h-2 fill-current stroke-none" /> Ad
-                       </div>
-                       <X className="w-3 h-3 text-white/50 bg-black/40 rounded-full cursor-pointer" />
-                    </div>
-                    <div className="absolute bottom-1 right-2 text-[6px] text-white/30 italic">*within 7 days of KYC comm</div>
-                 </div>
+              {/* Real Ad Banner on Top */}
+              <div className="w-full py-3 flex justify-center sticky top-0 z-10 bg-[#fce4ec] border-b border-indigo-100 shadow-sm px-2">
+                <NativeScriptAd adKey="0b42251643af50b81e65d8b30b80ae4c" />
               </div>
 
               {/* Grid of videos scrolling vertically */}
@@ -739,6 +748,7 @@ export default function App() {
 
               {/* Ad indicator on bottom */}
               <div className="w-full bg-white/10 h-1 backdrop-blur-sm"></div>
+
             </motion.div>
           )}
         </AnimatePresence>
@@ -769,21 +779,12 @@ export default function App() {
                   <p className="text-[10px] md:text-sm text-slate-500 font-medium italic">Please wait while we prepare your high-bandwidth multi-view environment...</p>
                </div>
 
-               {/* INTERSTITIAL AD UNIT */}
-               <div className="w-full h-32 md:h-48 bg-slate-900 rounded-2xl overflow-hidden relative border-2 border-slate-200">
-                  <img 
-                    src="https://picsum.photos/seed/adview/600/400" 
-                    alt="Premium Ad" 
-                    className="w-full h-full object-cover opacity-80"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 bg-gradient-to-t from-black to-transparent">
-                     <div className="text-yellow-400 font-black italic uppercase text-sm md:text-lg">PRO UPGRADE AVAILABLE</div>
-                     <div className="text-white text-[8px] md:text-xs font-bold opacity-80">Remove all ads and get 50+ views simultaneously</div>
+               {/* INTERSTITIAL AD UNIT - Using User's Native Script Code */}
+               <div className="w-full min-h-[100px] flex items-center justify-center p-2 md:p-4 bg-slate-50 rounded-2xl border-2 border-indigo-100 shadow-inner relative">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[8px] px-3 py-1 rounded-full font-black uppercase tracking-tighter">
+                    Sponsored Ad
                   </div>
-                  <div className="absolute top-2 left-2 flex gap-1">
-                     <div className="bg-indigo-600 text-white text-[7px] md:text-[8px] px-1.5 py-0.5 rounded font-black uppercase">AD Integration</div>
-                  </div>
+                  <NativeScriptAd adKey={appSettings.nativeAdKey} />
                </div>
 
                <div className="space-y-4 pt-2 md:pt-4 relative z-10">
